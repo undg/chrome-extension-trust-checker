@@ -5,7 +5,7 @@ export interface TabInfo {
 
 export function extractDomain(url: string | undefined): string | null {
   if (!url) return null
-  
+
   try {
     const urlObj = new URL(url)
     return urlObj.hostname.replace(/^www\./, '')

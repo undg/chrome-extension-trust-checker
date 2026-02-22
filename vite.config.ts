@@ -1,12 +1,12 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import { crx } from "@crxjs/vite-plugin";
-import manifest from "./src/manifest.json" with { type: "json" };
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import { crx } from '@crxjs/vite-plugin'
+import manifest from './src/manifest.json' with { type: 'json' }
 
 export default defineConfig({
   plugins: [react(), crx({ manifest })],
   server: {
-    host: "localhost",
+    host: 'localhost',
     port: 5173,
     strictPort: true,
     cors: {
@@ -16,8 +16,8 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        popup: "src/popup/index.html",
+        popup: 'src/popup/index.html',
       },
     },
   },
-});
+})

@@ -11,7 +11,7 @@ export function Popup() {
       const domain = extractDomain(currentTab?.url)
       setTabInfo({
         domain,
-        url: currentTab?.url || null
+        url: currentTab?.url || null,
       })
       setLoading(false)
     })
@@ -31,14 +31,11 @@ export function Popup() {
   return (
     <div className="popup">
       <h1>Trust Checker</h1>
-      
+
       {tabInfo.domain ? (
         <>
           <p className="domain">{tabInfo.domain}</p>
-          <button 
-            onClick={openTrustpilot}
-            className="trustpilot-btn"
-          >
+          <button onClick={openTrustpilot} className="trustpilot-btn">
             View Trustpilot Reviews
           </button>
         </>

@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { extractDomain, buildTrustpilotUrl } from '../shared/utils'
+import { describe, expect, it } from 'vitest'
+import { buildTrustpilotUrl, extractDomain } from '../shared/utils'
 
 describe('extractDomain', () => {
   it('extracts domain from URL with www', () => {
@@ -21,6 +21,8 @@ describe('extractDomain', () => {
 
 describe('buildTrustpilotUrl', () => {
   it('builds correct Trustpilot URL', () => {
-    expect(buildTrustpilotUrl('example.com')).toBe('https://www.trustpilot.com/review/example.com')
+    expect(buildTrustpilotUrl('example.com')).toBe(
+      'https://www.trustpilot.com/review/example.com',
+    )
   })
 })

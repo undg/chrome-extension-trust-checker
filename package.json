@@ -7,9 +7,13 @@
     "dev": "vite",
     "build": "vite build",
     "test": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "check": "biome check ."
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.4",
     "@crxjs/vite-plugin": "^2.0.0-beta.28",
     "@types/chrome": "^0.0.254",
     "@types/react": "^19.0.0",
