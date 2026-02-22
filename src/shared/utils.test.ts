@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildTrustpilotUrl, extractDomain } from '../shared/utils'
+import { buildTrustpilotUrl, extractDomain } from './utils'
 
 describe('extractDomain', () => {
   it('extracts domain from URL with www', () => {

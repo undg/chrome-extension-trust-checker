@@ -1,11 +1,11 @@
-import type { RatingAPI as IRatingAPI, TrustpilotRating } from '../shared/types'
-import { fetchRating } from './fetchRating'
-import { scrapeRating } from './scrapeRating'
+import { fetchRating } from '@/api/fetchRating'
+import { scrapeRating } from '@/api/scrapeRating'
+import type { RatingAPI as IRatingAPI, TrustpilotRating } from '@/shared/types'
 
 /**
  * Configuration options for RatingClient.
  */
-export interface RatingClientConfig {
+type RatingClientConfig = {
   /** The strategy to use for fetching ratings */
   strategy: 'api' | 'scraper'
   /** The base URL of the proxy API server (required when strategy is 'api') */

@@ -1,5 +1,5 @@
-import type { TrustpilotRating } from '../shared/types'
-import { buildTrustpilotUrl } from '../shared/utils'
+import { TrustpilotRating } from '@/shared/types'
+import { buildTrustpilotUrl } from '@/shared/utils'
 
 /**
  * Scrapes Trustpilot rating data directly from the Trustpilot website.

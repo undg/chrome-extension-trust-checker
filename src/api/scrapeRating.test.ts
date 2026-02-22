@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { scrapeRating } from '../api/scrapeRating'
+import { scrapeRating } from '@/api/scrapeRating'
 
 describe('scrapeRating', () => {
   it('extracts rating from JSON-LD structured data', async () => {

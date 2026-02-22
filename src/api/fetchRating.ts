@@ -1,5 +1,5 @@
-import type { TrustpilotRating } from '../shared/types'
-import { buildTrustpilotUrl } from '../shared/utils'
+import { TrustpilotRating } from '@/shared/types'
+import { buildTrustpilotUrl } from '@/shared/utils'
 
 /**
  * Configuration options for fetching ratings from a proxy API.

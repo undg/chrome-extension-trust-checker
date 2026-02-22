@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { RatingClient } from '../api/api'
+import { RatingClient } from './api'
 
 describe('RatingClient', () => {
   it('uses scraper when strategy is scraper', async () => {

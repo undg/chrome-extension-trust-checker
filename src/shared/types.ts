@@ -1,4 +1,4 @@
-export interface TrustpilotRating {
+export type TrustpilotRating = {
   domain: string
   rating: number
   reviewCount: number
@@ -7,6 +7,6 @@ export interface TrustpilotRating {
   fetchedAt: number
 }
 
-export interface RatingAPI {
+export type RatingAPI = {
   fetchRating(domain: string): Promise<TrustpilotRating | null>
 }
