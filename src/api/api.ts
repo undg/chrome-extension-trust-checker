@@ -36,7 +36,7 @@ type RatingClientConfig = {
  * const rating = await client.fetchRating('github.com')
  * ```
  */
-export class RatingClient implements IRatingAPI {
+export class Api implements IRatingAPI {
   private config: RatingClientConfig
 
   /**
@@ -94,6 +94,6 @@ export class RatingClient implements IRatingAPI {
  * This is a convenience export for common usage. For custom configuration,
  * create your own instance with `new RatingClient(config)`.
  */
-export const ratingClient = new RatingClient({
+export const ratingClient = new Api({
   strategy: 'scraper',
 })

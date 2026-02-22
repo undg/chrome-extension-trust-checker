@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
-import { RatingClient } from './api'
+import { Api } from './api'
 
 describe('RatingClient', () => {
   it('uses scraper when strategy is scraper', async () => {
-    const api = new RatingClient({ strategy: 'scraper' })
+    const api = new Api({ strategy: 'scraper' })
 
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -23,7 +23,7 @@ describe('RatingClient', () => {
   })
 
   it('uses proxy when strategy is api', async () => {
-    const api = new RatingClient({
+    const api = new Api({
       strategy: 'api',
       baseUrl: 'https://api.example.com',
     })
@@ -53,7 +53,7 @@ describe('RatingClient', () => {
   })
 
   it('falls back to scraper when proxy fails', async () => {
-    const api = new RatingClient({
+    const api = new Api({
       strategy: 'api',
       baseUrl: 'https://api.example.com',
     })
@@ -82,7 +82,7 @@ describe('RatingClient', () => {
   })
 
   it('can switch config at runtime', async () => {
-    const api = new RatingClient({ strategy: 'scraper' })
+    const api = new Api({ strategy: 'scraper' })
 
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
