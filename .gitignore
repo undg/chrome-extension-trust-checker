@@ -1,5 +1,6 @@
 # Never ignore
 !AGENTS.md
+!.opencode/
 
 # Dependencies
 node_modules/

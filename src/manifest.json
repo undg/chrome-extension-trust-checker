@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Trust Checker",
+  "version": "1.0.0",
+  "description": "Check websites against Trustpilot ratings and reviews",
+  "permissions": ["activeTab", "tabs"],
+  "action": {
+    "default_popup": "src/popup/index.html"
+  },
+  "background": {
+    "service_worker": "src/background/service-worker.ts",
+    "type": "module"
+  }
+}
