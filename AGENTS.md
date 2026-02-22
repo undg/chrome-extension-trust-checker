@@ -30,15 +30,16 @@ Browser extension that checks the current website's domain against Trustpilot ra
 
 - React component rendered when user clicks extension icon
 - Shows current domain
+- **Rating display**: Stars, numeric rating, review count, trust score
 - Button to open Trustpilot reviews in new tab
-- Future: Display rating summary, review count
+- Fetches ratings via API client
 
 ### 2. Service Worker (`src/background/`)
 
 - Event-driven script (no persistent background page in MV3)
 - Handles `chrome.tabs` API calls
 - Manages extension state
-- Future: Caching Trustpilot data, periodic updates
+- **Badge updates**: Shows rating with color-coded badge (green/yellow/red)
 
 ### 3. Content Script (`src/content/`) [Future]
 
@@ -50,23 +51,25 @@ Browser extension that checks the current website's domain against Trustpilot ra
 
 - Domain extraction utilities
 - Trustpilot URL builders
-- Type definitions
-- API clients (future)
+- **Type definitions**: Rating interfaces
+- **API clients**: Scraper implementation with proxy abstraction for future backend
 
 ## Key Files
 
 ```
 src/
   popup/
-    Popup.tsx           # Main popup React component
+    Popup.tsx           # Main popup React component - shows rating stars
     index.tsx           # Popup entry point
     index.html          # Popup HTML template
   background/
-    service-worker.ts   # Service worker entry
+    service-worker.ts   # Service worker entry - handles badge updates
   shared/
-    types.ts            # TypeScript interfaces
+    types.ts            # TrustpilotRating and RatingAPI interfaces
     utils.ts            # Domain extraction helpers
     trustpilot.ts       # Trustpilot URL builders
+    scraper.ts          # Trustpilot page scraper implementation
+    api.ts              # Proxy API client with scraper fallback
   __tests__/            # Vitest tests
 public/
   manifest.json         # Extension manifest (CRXJS handles this)
@@ -91,21 +94,24 @@ public/
 - `chrome.tabs.query()`: Get current tab info
 - `chrome.tabs.create()`: Open Trustpilot in new tab
 - `chrome.runtime`: Extension messaging
+- `chrome.action.setBadgeText()`: Display rating on extension icon
+- `chrome.action.setBadgeBackgroundColor()`: Color-code ratings (green/yellow/red)
 
 ## Trustpilot Integration
 
-### Current (MVP)
+### Current
 
 - Extract domain from current tab URL
-- Build Trustpilot review URL: `https://www.trustpilot.com/review/{domain}`
-- Open in new tab
+- **Scraper-based**: Fetches Trustpilot page, extracts JSON-LD structured data
+- **Rating display**: Stars, numeric score, review count, trust level
+- **Badge**: Color-coded rating shown on extension icon
+- Open detailed reviews in new tab
 
-### Future
+### Future (Optional PHP Proxy)
 
-- Fetch rating data via Trustpilot API (requires API key)
-- Cache results locally
-- Display rating summary in popup
-- Show badge on extension icon
+- **Backend proxy**: PHP server calls Trustpilot API (keeps API key secure)
+- Rate limiting and caching on server side
+- Easy switch via `ProxyRatingAPI` config (set `baseUrl` to your server)
 
 ## Build & Development
 
@@ -185,9 +191,10 @@ pnpm test:ui       # Run Vitest with UI
 
 ## Future Enhancements
 
-- [ ] Trustpilot API integration for ratings
-- [ ] Extension icon badge showing rating
+- [x] ~~Trustpilot scraper for ratings~~ (Implemented - using scraper)
+- [x] ~~Extension icon badge showing rating~~ (Implemented)
+- [x] ~~Review summary in popup~~ (Implemented - stars, rating, count)
+- [ ] PHP Proxy API (Ready to implement - see `ProxyRatingAPI`)
 - [ ] Options page for settings
-- [ ] Review summary in popup
 - [ ] Historical rating trends
 - [ ] Content script overlay on websites

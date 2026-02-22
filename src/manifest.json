@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "Check websites against Trustpilot ratings and reviews",
   "permissions": ["activeTab", "tabs"],
+  "host_permissions": ["https://www.trustpilot.com/*"],
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
