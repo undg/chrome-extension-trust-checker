@@ -1,17 +1,15 @@
 import { useEffect, useState } from 'react'
-import { ratingClient } from '../api/api'
-import type { TrustpilotRating } from '../shared/types'
-import {
-  buildTrustpilotUrl,
-  extractDomain,
-  type TabInfo,
-} from '../shared/utils'
+import { Api } from '@/api/api'
+import type { TrustpilotRating } from '@/shared/types'
+import { buildTrustpilotUrl, extractDomain, type TabInfo } from '@/shared/utils'
 
 export function Popup() {
   const [tabInfo, setTabInfo] = useState<TabInfo>({ domain: null, url: null })
   const [rating, setRating] = useState<TrustpilotRating | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const ratingClient = new Api({ strategy: 'scraper' })
 
   useEffect(() => {
     chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
