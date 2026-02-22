@@ -10,15 +10,16 @@ Browser extension that checks the current website's domain against Trustpilot ra
 
 - **Manifest Version:** 3 (MV3)
 - **Language:** TypeScript
-- **Frontend:** React 18
+- **Frontend:** React 19 with React Compiler
 - **Build Tool:** Vite with CRXJS plugin
 - **Testing:** Vitest
-- **Package Manager:** npm
+- **Package Manager:** pnpm
 
 ### Why This Stack?
 
 - **TypeScript:** Type safety, better DX, easier maintenance
-- **React + Vite:** Modern dev experience, HMR, fast builds
+- **React 19 + Compiler:** Latest React with automatic memoization, better performance
+- **CSS Modules:** Scoped, maintainable styles without runtime overhead
 - **CRXJS:** Solves Chrome extension HMR issues, handles manifest generation
 - **Vitest:** Fast, modern test runner with built-in assertions
 - **MV3:** Required for new extensions, better security model
@@ -111,7 +112,7 @@ public/
 ### Development
 
 ```bash
-npm run dev        # Start Vite dev server with HMR
+pnpm dev           # Start Vite dev server with HMR
 ```
 
 CRXJS handles:
@@ -123,14 +124,14 @@ CRXJS handles:
 ### Build
 
 ```bash
-npm run build      # Production build
+pnpm build         # Production build
 ```
 
 ### Testing
 
 ```bash
-npm run test       # Run Vitest
-npm run test:ui    # Run Vitest with UI
+pnpm test          # Run Vitest
+pnpm test:ui       # Run Vitest with UI
 ```
 
 ## Testing Strategy
@@ -149,16 +150,17 @@ npm run test:ui    # Run Vitest with UI
 
 ## Development Workflow
 
-1. **Setup:** `npm install`
-2. **Dev:** `npm run dev` - Load unpacked extension from `dist/`
-3. **Test:** `npm run test` - Run tests in watch mode
-4. **Build:** `npm run build` - Production build for Web Store
+1. **Setup:** `pnpm install`
+2. **Dev:** `pnpm dev` - Load unpacked extension from `dist/`
+3. **Test:** `pnpm test` - Run tests in watch mode
+4. **Build:** `pnpm build` - Production build for Web Store
 
 ## File Naming Conventions
 
 - React components: PascalCase (e.g., `Popup.tsx`)
 - Utilities: camelCase (e.g., `trustpilot.ts`)
-- Tests: `{file}.test.ts
+- Tests: `{file}.test.ts`
+- CSS Modules: `*.module.css`
 
 ## State Management
 

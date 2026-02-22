@@ -8,10 +8,11 @@
 
 **Tasks:**
 
-- [ ] Initialize npm project
-- [ ] Install Vite + React + TypeScript template
+- [ ] Initialize pnpm project
+- [ ] Install Vite + React 19 + TypeScript template
 - [ ] Install CRXJS Vite plugin for Chrome extension support
 - [ ] Install Vitest + React Testing Library
+- [ ] Install and configure babel-plugin-react-compiler
 - [ ] Configure TypeScript (tsconfig.json)
 - [ ] Configure Vite (vite.config.ts) with CRXJS
 - [ ] Setup project folder structure
@@ -197,7 +198,7 @@ Popup (React) ←→ Service Worker ←→ Chrome Tabs API
 
 **Tasks:**
 
-- [ ] Add CSS/SCSS or CSS-in-JS solution
+- [ ] Use CSS Modules for scoped styling
 - [ ] Style popup container (fixed width ~350px)
 - [ ] Style domain display area
 - [ ] Style "Check on Trustpilot" button
@@ -249,7 +250,7 @@ Popup (React) ←→ Service Worker ←→ Chrome Tabs API
 **Tasks:**
 
 - [ ] Configure Vite production build
-- [ ] Test `npm run build` output
+- [ ] Test `pnpm build` output
 - [ ] Verify all files in `dist/`:
   - manifest.json
   - popup HTML/JS/CSS
@@ -428,7 +429,7 @@ trustpilot-checker/
 │   │   ├── index.html
 │   │   ├── index.tsx
 │   │   ├── Popup.tsx
-│   │   └── styles.css
+│   │   └── Popup.module.css
 │   ├── shared/
 │   │   ├── types.ts
 │   │   ├── utils.ts
