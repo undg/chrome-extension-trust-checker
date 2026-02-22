@@ -1,30 +1,15 @@
-import { TrustpilotRating } from '@/shared/types'
+import type { TrustpilotRating } from '@/shared/types'
 import { buildTrustpilotUrl } from '@/shared/utils'
 
-/**
- * Configuration options for fetching ratings from a proxy API.
- */
+/** Configuration for fetching ratings from a proxy API. */
 export interface FetchRatingConfig {
   /** The base URL of the proxy API server */
   baseUrl: string
 }
 
 /**
- * Fetches Trustpilot rating data from a proxy API server.
- *
- * @param domain - The domain to look up (e.g., "example.com")
- * @param config - Configuration including the proxy API base URL
- * @returns The rating data, or null if the request fails
- *
- * @example
- * ```typescript
- * const rating = await fetchRating('github.com', { baseUrl: 'https://api.example.com' })
- * if (rating) {
- *   console.log(`Rating: ${rating.rating}/5`)
- * }
- * ```
- *
- * @throws This function does not throw errors - returns null on any failure
+ * Fetches Trustpilot rating from a proxy API server.
+ * Returns null on any failure (does not throw).
  */
 export async function fetchRating(
   domain: string,

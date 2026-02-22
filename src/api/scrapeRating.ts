@@ -1,19 +1,9 @@
-import { TrustpilotRating } from '@/shared/types'
+import type { TrustpilotRating } from '@/shared/types'
 import { buildTrustpilotUrl } from '@/shared/utils'
 
 /**
- * Scrapes Trustpilot rating data directly from the Trustpilot website.
- *
- * @param domain - The domain to look up (e.g., "example.com")
- * @returns The rating data, or null if not found or on error
- *
- * @example
- * ```typescript
- * const rating = await scrapeRating('github.com')
- * if (rating) {
- *   console.log(`Rating: ${rating.rating}/5, Reviews: ${rating.reviewCount}`)
- * }
- * ```
+ * Scrapes Trustpilot rating directly from the website.
+ * Returns null if not found or on error.
  */
 export async function scrapeRating(
   domain: string,
@@ -56,14 +46,8 @@ export async function scrapeRating(
 }
 
 /**
- * Extracts the rating value from Trustpilot HTML.
- *
- * @param html - The raw HTML from the Trustpilot page
- * @returns The rating as a number (1-5), or null if not found
- *
- * @remarks
+ * Extracts rating from Trustpilot HTML.
  * Tries JSON-LD structured data first, then falls back to meta tags.
- * Handles Trustpilot's @graph array structure in JSON-LD.
  */
 function extractRating(html: string): number | null {
   const jsonLdMatch = html.match(
@@ -103,10 +87,8 @@ function extractRating(html: string): number | null {
 }
 
 /**
- * Extracts the review count from Trustpilot HTML.
- *
- * @param html - The raw HTML from the Trustpilot page
- * @returns The number of reviews, or 0 if not found
+ * Extracts review count from Trustpilot HTML.
+ * Returns 0 if not found.
  */
 function extractReviewCount(html: string): number {
   const jsonLdMatch = html.match(
@@ -141,10 +123,7 @@ function extractReviewCount(html: string): number {
 }
 
 /**
- * Extracts the trust score label from Trustpilot HTML.
- *
- * @param html - The raw HTML from the Trustpilot page
- * @returns The trust score label (e.g., "Excellent", "Great", "Average"), or null if not found
+ * Extracts trust score label (e.g., "Excellent", "Great") from Trustpilot HTML.
  */
 function extractTrustScore(html: string): string | null {
   const match = html.match(
