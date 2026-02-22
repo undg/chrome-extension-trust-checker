@@ -1,9 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
-import { ScraperRatingAPI } from '../shared/scraper'
+import { scrapeRating } from '../api/scrapeRating'
 
-describe('ScraperRatingAPI', () => {
-  const api = new ScraperRatingAPI()
-
+describe('scrapeRating', () => {
   it('extracts rating from JSON-LD structured data', async () => {
     const mockHtml = `
       <script type="application/ld+json">
@@ -26,7 +24,7 @@ describe('ScraperRatingAPI', () => {
     })
     vi.stubGlobal('fetch', mockFetch)
 
-    const result = await api.fetchRating('example.com')
+    const result = await scrapeRating('example.com')
 
     expect(result).not.toBeNull()
     expect(result?.rating).toBe(4.5)
@@ -61,7 +59,7 @@ describe('ScraperRatingAPI', () => {
     })
     vi.stubGlobal('fetch', mockFetch)
 
-    const result = await api.fetchRating('trustpilot.com')
+    const result = await scrapeRating('trustpilot.com')
 
     expect(result).not.toBeNull()
     expect(result?.rating).toBe(4.4)
@@ -76,7 +74,7 @@ describe('ScraperRatingAPI', () => {
     })
     vi.stubGlobal('fetch', mockFetch)
 
-    const result = await api.fetchRating('nonexistent.com')
+    const result = await scrapeRating('nonexistent.com')
 
     expect(result).toBeNull()
   })
@@ -88,7 +86,7 @@ describe('ScraperRatingAPI', () => {
     })
     vi.stubGlobal('fetch', mockFetch)
 
-    const result = await api.fetchRating('example.com')
+    const result = await scrapeRating('example.com')
 
     expect(result).toBeNull()
   })
@@ -97,7 +95,7 @@ describe('ScraperRatingAPI', () => {
     const mockFetch = vi.fn().mockRejectedValue(new Error('Network error'))
     vi.stubGlobal('fetch', mockFetch)
 
-    const result = await api.fetchRating('example.com')
+    const result = await scrapeRating('example.com')
 
     expect(result).toBeNull()
   })

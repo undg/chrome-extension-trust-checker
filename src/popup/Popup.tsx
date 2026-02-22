@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ratingAPI } from '../shared/api'
+import { ratingClient } from '../api/api'
 import type { TrustpilotRating } from '../shared/types'
 import {
   buildTrustpilotUrl,
@@ -25,7 +25,7 @@ export function Popup() {
 
       if (domain) {
         try {
-          const ratingData = await ratingAPI.fetchRating(domain)
+          const ratingData = await ratingClient.fetchRating(domain)
           setRating(ratingData)
 
           // Update badge with rating

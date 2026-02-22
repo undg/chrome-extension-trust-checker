@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
-import { ProxyRatingAPI } from '../shared/api'
+import { RatingClient } from '../api/api'
 
-describe('ProxyRatingAPI', () => {
-  it('uses scraper when no proxy configured', async () => {
-    const api = new ProxyRatingAPI({ baseUrl: null, useScraper: true })
+describe('RatingClient', () => {
+  it('uses scraper when strategy is scraper', async () => {
+    const api = new RatingClient({ strategy: 'scraper' })
 
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -22,10 +22,10 @@ describe('ProxyRatingAPI', () => {
     expect(result?.rating).toBe(4.2)
   })
 
-  it('uses proxy when configured', async () => {
-    const api = new ProxyRatingAPI({
+  it('uses proxy when strategy is api', async () => {
+    const api = new RatingClient({
+      strategy: 'api',
       baseUrl: 'https://api.example.com',
-      useScraper: false,
     })
 
     const mockFetch = vi.fn().mockResolvedValue({
@@ -53,9 +53,9 @@ describe('ProxyRatingAPI', () => {
   })
 
   it('falls back to scraper when proxy fails', async () => {
-    const api = new ProxyRatingAPI({
+    const api = new RatingClient({
+      strategy: 'api',
       baseUrl: 'https://api.example.com',
-      useScraper: false,
     })
 
     const mockFetch = vi
@@ -82,7 +82,7 @@ describe('ProxyRatingAPI', () => {
   })
 
   it('can switch config at runtime', async () => {
-    const api = new ProxyRatingAPI({ baseUrl: null, useScraper: true })
+    const api = new RatingClient({ strategy: 'scraper' })
 
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -96,7 +96,7 @@ describe('ProxyRatingAPI', () => {
     vi.stubGlobal('fetch', mockFetch)
 
     // First with scraper
-    api.setConfig({ baseUrl: null, useScraper: true })
+    api.setConfig({ strategy: 'scraper' })
     await api.fetchRating('example.com')
     expect(mockFetch).toHaveBeenCalledWith(
       expect.stringContaining('trustpilot.com'),
@@ -104,7 +104,7 @@ describe('ProxyRatingAPI', () => {
     )
 
     // Now switch to proxy
-    api.setConfig({ baseUrl: 'https://api.example.com', useScraper: false })
+    api.setConfig({ strategy: 'api', baseUrl: 'https://api.example.com' })
     await api.fetchRating('example.com')
     expect(mockFetch).toHaveBeenCalledWith(
       expect.stringContaining('api.example.com'),
