@@ -69,7 +69,7 @@ export function extractRootDomain(domain: string): string {
 
   if (MULTI_PART_TLDS.includes(lastThree)) {
     // For multi-part TLDs, root domain is the part before the TLD
-    return parts.slice(-4, -3).join('.') + '.' + lastThree
+    return `${parts.slice(-4, -3).join('.')}.${lastThree}`
   }
 
   if (MULTI_PART_TLDS.includes(lastTwo)) {

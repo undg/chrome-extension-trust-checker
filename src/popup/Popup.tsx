@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { Api } from '@/api/api'
 import type { TrustpilotRating } from '@/shared/types'
 import {
   buildTrustpilotUrl,
@@ -10,7 +9,6 @@ import {
 import styles from './Popup.module.css'
 
 const STORAGE_KEY = 'trustchecker_useRootDomain'
-const ratingClient = new Api({ strategy: 'scraper' })
 
 export function Popup() {
   const [tabInfo, setTabInfo] = useState<TabInfo>({ domain: null, url: null })
@@ -19,6 +17,7 @@ export function Popup() {
   const [error, setError] = useState<string | null>(null)
   const [useRootDomain, setUseRootDomain] = useState(true)
   const [storageLoaded, setStorageLoaded] = useState(false)
+  const [isCached, setIsCached] = useState(false)
   const isFirstLoad = useRef(true)
 
   // Load saved preference on mount
@@ -58,17 +57,21 @@ export function Popup() {
 
       if (domain) {
         try {
-          const ratingData = await ratingClient.fetchRating(domain)
-          setRating(ratingData)
+          const response = await chrome.runtime.sendMessage({
+            type: 'GET_CACHED_RATING',
+            domain,
+          })
 
-          if (ratingData) {
-            chrome.runtime.sendMessage({
-              type: 'UPDATE_BADGE',
-              rating: ratingData.rating,
-            })
+          if (response?.rating) {
+            setRating(response.rating)
+            setIsCached(true)
+          } else {
+            setRating(null)
+            setIsCached(false)
           }
         } catch {
-          setError('Failed to fetch rating')
+          setError('Failed to load rating')
+          setIsCached(false)
         }
       }
 
@@ -89,6 +92,36 @@ export function Popup() {
   const handleToggleChange = () => {
     setUseRootDomain(!useRootDomain)
     setError(null)
+  }
+
+  const handleRefresh = async () => {
+    if (!tabInfo.domain) return
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: 'REFRESH_RATING',
+        domain: tabInfo.domain,
+      })
+
+      if (response?.success && response.rating) {
+        setRating(response.rating)
+        setIsCached(false)
+        chrome.runtime.sendMessage({
+          type: 'UPDATE_BADGE',
+          rating: response.rating.rating,
+        })
+      } else {
+        setRating(null)
+        setError('No rating found')
+      }
+    } catch {
+      setError('Failed to refresh rating')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const renderStars = (ratingValue: number) => {
@@ -144,6 +177,9 @@ export function Popup() {
               </div>
               <p className={styles['review-count']}>
                 {rating.reviewCount.toLocaleString()} reviews
+                {isCached && (
+                  <span className={styles['cache-indicator']}> (cached)</span>
+                )}
               </p>
               {rating.trustScore && (
                 <p className={styles['trust-score']}>{rating.trustScore}</p>
@@ -155,13 +191,24 @@ export function Popup() {
             <p className={styles['no-rating']}>No rating found</p>
           )}
 
-          <button
-            type="button"
-            onClick={openTrustpilot}
-            className={styles['trustpilot-btn']}
-          >
-            View on Trustpilot
-          </button>
+          <div className={styles['button-group']}>
+            <button
+              type="button"
+              onClick={openTrustpilot}
+              className={styles['trustpilot-btn']}
+            >
+              View on Trustpilot
+            </button>
+            <button
+              type="button"
+              onClick={handleRefresh}
+              className={styles['refresh-btn']}
+              disabled={loading}
+              title="Force refresh from Trustpilot"
+            >
+              ↻
+            </button>
+          </div>
         </>
       ) : (
         <p className={styles.error}>Unable to get domain from current tab</p>
