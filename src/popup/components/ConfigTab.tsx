@@ -1,34 +1,31 @@
+import common from '../common.module.css'
 import { useCache, useConfig, useTabInfo } from '../hooks/useStore'
 import styles from '../Popup.module.css'
 
 export function ConfigTab() {
   const { config, updateConfig } = useConfig()
   const { tabInfo } = useTabInfo()
-  const { clearCache, clearDomainCache } = useCache()
+  const { clearCache, clearDomainCache, isClearing } = useCache()
 
   return (
     <div className={styles['tab-panel']}>
       <div className={styles['config-section']}>
         <h3 className={styles['config-heading']}>Loading Mode</h3>
-        <div className={styles['config-option']}>
-          <label className={styles['config-radio']}>
+        <div className={common['toggle-wrapper']}>
+          <span className={common['toggle-text']}>On-demand</span>
+          <label className={common.switch}>
             <input
-              type="radio"
-              name="autoFetch"
-              checked={!config?.autoFetchOnPageLoad}
-              onChange={() => updateConfig({ autoFetchOnPageLoad: false })}
-            />
-            <span>On-demand (manual fetch)</span>
-          </label>
-          <label className={styles['config-radio']}>
-            <input
-              type="radio"
-              name="autoFetch"
+              type="checkbox"
               checked={config?.autoFetchOnPageLoad}
-              onChange={() => updateConfig({ autoFetchOnPageLoad: true })}
+              onChange={() =>
+                updateConfig({
+                  autoFetchOnPageLoad: !config?.autoFetchOnPageLoad,
+                })
+              }
             />
-            <span>Automatic (fetch on page load)</span>
+            <span className={common.slider}></span>
           </label>
+          <span className={common['toggle-text']}>Automatic</span>
         </div>
         <p className={styles['config-hint']}>
           {config?.autoFetchOnPageLoad
@@ -39,16 +36,20 @@ export function ConfigTab() {
 
       <div className={styles['config-section']}>
         <h3 className={styles['config-heading']}>Domain Settings</h3>
-        <label className={styles['config-checkbox']}>
-          <input
-            type="checkbox"
-            checked={config?.useRootDomain ?? true}
-            onChange={() =>
-              updateConfig({ useRootDomain: !config?.useRootDomain })
-            }
-          />
-          <span>Use root domain for lookups</span>
-        </label>
+        <div className={common['toggle-wrapper']}>
+          <span className={common['toggle-text']}>Full domain</span>
+          <label className={common.switch}>
+            <input
+              type="checkbox"
+              checked={config?.useRootDomain ?? true}
+              onChange={() =>
+                updateConfig({ useRootDomain: !config?.useRootDomain })
+              }
+            />
+            <span className={common.slider}></span>
+          </label>
+          <span className={common['toggle-text']}>Root domain</span>
+        </div>
         <p className={styles['config-hint']}>
           Example: blog.example.com → example.com
         </p>
@@ -60,17 +61,18 @@ export function ConfigTab() {
           <button
             type="button"
             onClick={clearDomainCache}
-            className={styles['cache-btn']}
-            disabled={!tabInfo.domain}
+            className={`${common.btn} ${common['btn-primary']}`}
+            disabled={!tabInfo.domain || isClearing}
           >
-            Clear Current Domain
+            {isClearing ? 'Clearing...' : 'Clear Current Domain'}
           </button>
           <button
             type="button"
             onClick={clearCache}
-            className={styles['cache-btn']}
+            className={`${common.btn} ${common['btn-primary']}`}
+            disabled={isClearing}
           >
-            Clear All Cache
+            {isClearing ? 'Clearing...' : 'Clear All Cache'}
           </button>
         </div>
         <p className={styles['config-hint']}>Cache expires after 30 minutes.</p>

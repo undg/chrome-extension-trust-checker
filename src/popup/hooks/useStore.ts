@@ -2,6 +2,7 @@ import { useAtomValue, useSetAtom } from 'jotai'
 import { useEffect } from 'react'
 import {
   clearCacheAtom,
+  clearCacheLoadingAtom,
   clearDomainCacheAtom,
   configAtom,
   configLoadedAtom,
@@ -70,9 +71,11 @@ export function usePopupInit() {
 export function useCache() {
   const clearCache = useSetAtom(clearCacheAtom)
   const clearDomainCache = useSetAtom(clearDomainCacheAtom)
+  const isClearing = useAtomValue(clearCacheLoadingAtom)
 
   return {
     clearCache,
     clearDomainCache,
+    isClearing,
   }
 }

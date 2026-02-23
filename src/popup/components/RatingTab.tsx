@@ -1,4 +1,5 @@
 import { buildTrustpilotUrl } from '@/shared/utils'
+import common from '../common.module.css'
 import { useConfig, useRatingState, useTabInfo } from '../hooks/useStore'
 import styles from '../Popup.module.css'
 import { StarRating } from './StarRating'
@@ -27,9 +28,9 @@ export function RatingTab() {
     <div className={styles['tab-panel']}>
       <p className={styles.domain}>{tabInfo.domain}</p>
 
-      <div className={styles['toggle-wrapper']}>
-        <span className={styles['toggle-text']}>Full domain</span>
-        <label className={styles.switch}>
+      <div className={common['toggle-wrapper']}>
+        <span className={common['toggle-text']}>Full domain</span>
+        <label className={common.switch}>
           <input
             type="checkbox"
             checked={config?.useRootDomain ?? true}
@@ -37,9 +38,9 @@ export function RatingTab() {
               updateConfig({ useRootDomain: !config?.useRootDomain })
             }
           />
-          <span className={styles.slider}></span>
+          <span className={common.slider}></span>
         </label>
-        <span className={styles['toggle-text']}>Root domain</span>
+        <span className={common['toggle-text']}>Root domain</span>
       </div>
 
       {loading ? (
@@ -73,7 +74,7 @@ export function RatingTab() {
       <button
         type="button"
         onClick={openTrustpilot}
-        className={styles['trustpilot-btn']}
+        className={`${common.btn} ${common['btn-primary']}`}
       >
         View on Trustpilot
       </button>

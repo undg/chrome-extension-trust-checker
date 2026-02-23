@@ -11,6 +11,7 @@ export const ratingAtom = atom<TrustpilotRating | null>(null)
 export const loadingAtom = atom<boolean>(false)
 export const errorAtom = atom<string | null>(null)
 export const isCachedAtom = atom<boolean>(false)
+export const clearCacheLoadingAtom = atom<boolean>(false)
 
 // Derived atom for effective domain based on config
 export const effectiveDomainAtom = atom((get) => {
@@ -179,6 +180,7 @@ export const initializePopupAtom = atom(null, async (get, set) => {
 
 // Action atom to clear all cache
 export const clearCacheAtom = atom(null, async (_, set) => {
+  set(clearCacheLoadingAtom, true)
   try {
     await chrome.runtime.sendMessage({ type: 'CLEAR_CACHE' })
     set(ratingAtom, null)
@@ -187,6 +189,8 @@ export const clearCacheAtom = atom(null, async (_, set) => {
     chrome.runtime.sendMessage({ type: 'UPDATE_BADGE', rating: 0 })
   } catch {
     set(errorAtom, 'Failed to clear cache')
+  } finally {
+    set(clearCacheLoadingAtom, false)
   }
 })
 
@@ -195,6 +199,7 @@ export const clearDomainCacheAtom = atom(null, async (get, set) => {
   const domain = get(tabInfoAtom).domain
   if (!domain) return
 
+  set(clearCacheLoadingAtom, true)
   try {
     await chrome.runtime.sendMessage({
       type: 'CLEAR_CACHE',
@@ -206,5 +211,7 @@ export const clearDomainCacheAtom = atom(null, async (get, set) => {
     chrome.runtime.sendMessage({ type: 'UPDATE_BADGE', rating: 0 })
   } catch {
     set(errorAtom, 'Failed to clear cache')
+  } finally {
+    set(clearCacheLoadingAtom, false)
   }
 })
