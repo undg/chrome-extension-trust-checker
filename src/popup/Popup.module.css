@@ -64,6 +64,9 @@ body {
 /* Tab Panel */
 .tab-panel {
   min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .domain {
@@ -189,9 +192,14 @@ body {
 
 /* Config Panel */
 .config-section {
-  margin-bottom: 24px;
+  /* gap: 0px; */
   padding-bottom: 20px;
   border-bottom: 1px solid #e0e0e0;
+  display: grid;
+  grid-template-areas:
+    "name name"
+    "switch ."
+    "desc desc";
 }
 
 .config-section:last-child {
@@ -206,6 +214,7 @@ body {
   margin-bottom: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  grid-area: name;
 }
 
 .config-option {
@@ -259,6 +268,7 @@ body {
   color: #888;
   margin-top: 8px;
   line-height: 1.4;
+  grid-area: desc;
 }
 
 /* Cache Buttons */

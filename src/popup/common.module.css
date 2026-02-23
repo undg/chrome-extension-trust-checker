@@ -42,6 +42,39 @@
   background: #e8e8e8;
 }
 
+.btn-danger {
+  background: #dc3545;
+  color: white;
+  border-color: #dc3545;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #c82333;
+  border-color: #bd2130;
+}
+
+.btn-danger:disabled {
+  background: #f5c6cb;
+  border-color: #f5c6cb;
+  color: #721c24;
+}
+
+.btn-alert {
+  background: #ff3722;
+  color: white;
+  border-color: #ff3722;
+}
+
+.btn-alert:hover:not(:disabled) {
+  background: #e62e1e;
+  border-color: #e62e1e;
+}
+
+.btn-alert:disabled {
+  background: #ff9b91;
+  border-color: #ff9b91;
+}
+
 /* Toggle switch styles */
 .switch {
   position: relative;
@@ -93,9 +126,9 @@
 .toggle-wrapper {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: start;
   gap: 12px;
-  padding: 8px;
+  grid-area: switch;
 }
 
 .toggle-text {

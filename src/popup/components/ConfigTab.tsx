@@ -61,7 +61,7 @@ export function ConfigTab() {
           <button
             type="button"
             onClick={clearDomainCache}
-            className={`${common.btn} ${common.btnPrimary}`}
+            className={`${common.btn} ${common.btnDanger}`}
             disabled={!tabInfo.domain || isClearing}
           >
             {isClearing ? 'Clearing...' : 'Clear Current Domain'}
@@ -69,11 +69,12 @@ export function ConfigTab() {
           <button
             type="button"
             onClick={clearCache}
-            className={`${common.btn} ${common.btnPrimary}`}
+            className={`${common.btn} ${common.btnDanger}`}
             disabled={isClearing}
           >
-            {isClearing ? 'Clearing...' : 'Clear All Cache'}
+            {isClearing ? 'Clearing...' : 'Clear All Domains'}
           </button>
+          <span>number or websites: 19</span>
         </div>
         <p className={styles.configHint}>Cache expires after 30 minutes.</p>
       </div>

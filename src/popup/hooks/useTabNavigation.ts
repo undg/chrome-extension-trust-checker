@@ -3,7 +3,8 @@ import { useCallback } from 'react'
 
 type Tab = 'rating' | 'config'
 
-const activeTabAtom = atom<Tab>('rating')
+//  @TODO (undg) 2026-02-23: tmp, flip it back
+const activeTabAtom = atom<Tab>('config')
 
 export function useTabNavigation() {
   const [activeTab, setActiveTab] = useAtom(activeTabAtom)
