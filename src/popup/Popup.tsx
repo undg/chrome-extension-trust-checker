@@ -1,20 +1,54 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Api } from '@/api/api'
 import type { TrustpilotRating } from '@/shared/types'
-import { buildTrustpilotUrl, extractDomain, type TabInfo } from '@/shared/utils'
+import {
+  buildTrustpilotUrl,
+  extractDomain,
+  extractRootDomain,
+  type TabInfo,
+} from '@/shared/utils'
+
+const STORAGE_KEY = 'trustchecker_useRootDomain'
+const ratingClient = new Api({ strategy: 'scraper' })
 
 export function Popup() {
   const [tabInfo, setTabInfo] = useState<TabInfo>({ domain: null, url: null })
   const [rating, setRating] = useState<TrustpilotRating | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [useRootDomain, setUseRootDomain] = useState(true)
+  const [storageLoaded, setStorageLoaded] = useState(false)
+  const isFirstLoad = useRef(true)
 
-  const ratingClient = new Api({ strategy: 'scraper' })
-
+  // Load saved preference on mount
   useEffect(() => {
+    chrome.storage.local.get([STORAGE_KEY], (result) => {
+      if (result[STORAGE_KEY] !== undefined) {
+        setUseRootDomain(result[STORAGE_KEY])
+      }
+      setStorageLoaded(true)
+    })
+  }, [])
+
+  // Save preference when changed
+  useEffect(() => {
+    if (storageLoaded) {
+      chrome.storage.local.set({ [STORAGE_KEY]: useRootDomain })
+    }
+  }, [useRootDomain, storageLoaded])
+
+  // Fetch rating when tab or preference changes
+  useEffect(() => {
+    if (!storageLoaded) return
+
     chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
       const currentTab = tabs[0]
-      const domain = extractDomain(currentTab?.url)
+      const fullDomain = extractDomain(currentTab?.url)
+      const domain = fullDomain
+        ? useRootDomain
+          ? extractRootDomain(fullDomain)
+          : fullDomain
+        : null
 
       setTabInfo({
         domain,
@@ -26,7 +60,6 @@ export function Popup() {
           const ratingData = await ratingClient.fetchRating(domain)
           setRating(ratingData)
 
-          // Update badge with rating
           if (ratingData) {
             chrome.runtime.sendMessage({
               type: 'UPDATE_BADGE',
@@ -38,15 +71,23 @@ export function Popup() {
         }
       }
 
-      setLoading(false)
+      if (isFirstLoad.current) {
+        setLoading(false)
+        isFirstLoad.current = false
+      }
     })
-  }, [])
+  }, [useRootDomain, storageLoaded])
 
   const openTrustpilot = () => {
     if (tabInfo.domain) {
       const trustpilotUrl = rating?.url || buildTrustpilotUrl(tabInfo.domain)
       chrome.tabs.create({ url: trustpilotUrl })
     }
+  }
+
+  const handleToggleChange = () => {
+    setUseRootDomain(!useRootDomain)
+    setError(null)
   }
 
   const renderStars = (ratingValue: number) => {
@@ -67,10 +108,6 @@ export function Popup() {
     )
   }
 
-  if (loading) {
-    return <div>Loading...</div>
-  }
-
   return (
     <div className="popup">
       <h1>Trust Checker</h1>
@@ -79,7 +116,24 @@ export function Popup() {
         <>
           <p className="domain">{tabInfo.domain}</p>
 
-          {rating ? (
+          <div className="toggle-wrapper">
+            <span className="toggle-text">Full domain</span>
+            <label className="switch">
+              <input
+                type="checkbox"
+                checked={useRootDomain}
+                onChange={handleToggleChange}
+              />
+              <span className="slider"></span>
+            </label>
+            <span className="toggle-text">Root domain</span>
+          </div>
+
+          {loading ? (
+            <div className="rating-container">
+              <p className="loading-text">Loading...</p>
+            </div>
+          ) : rating ? (
             <div className="rating-container">
               <div className="rating-stars">
                 {renderStars(rating.rating)}
