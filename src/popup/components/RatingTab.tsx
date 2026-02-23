@@ -18,18 +18,18 @@ export function RatingTab() {
 
   if (!tabInfo.domain) {
     return (
-      <div className={styles['tab-panel']}>
+      <div className={styles.tabPanel}>
         <p className={styles.error}>Unable to get domain from current tab</p>
       </div>
     )
   }
 
   return (
-    <div className={styles['tab-panel']}>
+    <div className={styles.tabPanel}>
       <p className={styles.domain}>{tabInfo.domain}</p>
 
-      <div className={common['toggle-wrapper']}>
-        <span className={common['toggle-text']}>Full domain</span>
+      <div className={common.toggleWrapper}>
+        <span className={common.toggleText}>Full domain</span>
         <label className={common.switch}>
           <input
             type="checkbox"
@@ -40,41 +40,41 @@ export function RatingTab() {
           />
           <span className={common.slider}></span>
         </label>
-        <span className={common['toggle-text']}>Root domain</span>
+        <span className={common.toggleText}>Root domain</span>
       </div>
 
       {loading ? (
-        <div className={styles['rating-container']}>
-          <p className={styles['loading-text']}>Loading...</p>
+        <div className={styles.ratingContainer}>
+          <p className={styles.loadingText}>Loading...</p>
         </div>
       ) : rating ? (
-        <div className={styles['rating-container']}>
-          <div className={styles['rating-stars']}>
+        <div className={styles.ratingContainer}>
+          <div className={styles.ratingStars}>
             <StarRating rating={rating.rating} />
-            <span className={styles['rating-value']}>
+            <span className={styles.ratingValue}>
               {rating.rating.toFixed(1)}
             </span>
           </div>
-          <p className={styles['review-count']}>
+          <p className={styles.reviewCount}>
             {rating.reviewCount.toLocaleString()} reviews
             {isCached && (
-              <span className={styles['cache-indicator']}> (cached)</span>
+              <span className={styles.cacheIndicator}> (cached)</span>
             )}
           </p>
           {rating.trustScore && (
-            <p className={styles['trust-score']}>{rating.trustScore}</p>
+            <p className={styles.trustScore}>{rating.trustScore}</p>
           )}
         </div>
       ) : error ? (
-        <p className={styles['error-message']}>{error}</p>
+        <p className={styles.errorMessage}>{error}</p>
       ) : (
-        <p className={styles['no-rating']}>No rating found</p>
+        <p className={styles.noRating}>No rating found</p>
       )}
 
       <button
         type="button"
         onClick={openTrustpilot}
-        className={`${common.btn} ${common['btn-primary']}`}
+        className={`${common.btn} ${common.btnPrimary}`}
       >
         View on Trustpilot
       </button>

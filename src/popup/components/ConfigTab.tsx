@@ -8,11 +8,11 @@ export function ConfigTab() {
   const { clearCache, clearDomainCache, isClearing } = useCache()
 
   return (
-    <div className={styles['tab-panel']}>
-      <div className={styles['config-section']}>
-        <h3 className={styles['config-heading']}>Loading Mode</h3>
-        <div className={common['toggle-wrapper']}>
-          <span className={common['toggle-text']}>On-demand</span>
+    <div className={styles.tabPanel}>
+      <div className={styles.configSection}>
+        <h3 className={styles.configHeading}>Loading Mode</h3>
+        <div className={common.toggleWrapper}>
+          <span className={common.toggleText}>On-demand</span>
           <label className={common.switch}>
             <input
               type="checkbox"
@@ -25,19 +25,19 @@ export function ConfigTab() {
             />
             <span className={common.slider}></span>
           </label>
-          <span className={common['toggle-text']}>Automatic</span>
+          <span className={common.toggleText}>Automatic</span>
         </div>
-        <p className={styles['config-hint']}>
+        <p className={styles.configHint}>
           {config?.autoFetchOnPageLoad
             ? 'Ratings are automatically fetched when you visit a website.'
             : 'Rating is fetched when you open the popup.'}
         </p>
       </div>
 
-      <div className={styles['config-section']}>
-        <h3 className={styles['config-heading']}>Domain Settings</h3>
-        <div className={common['toggle-wrapper']}>
-          <span className={common['toggle-text']}>Full domain</span>
+      <div className={styles.configSection}>
+        <h3 className={styles.configHeading}>Domain Settings</h3>
+        <div className={common.toggleWrapper}>
+          <span className={common.toggleText}>Full domain</span>
           <label className={common.switch}>
             <input
               type="checkbox"
@@ -48,20 +48,20 @@ export function ConfigTab() {
             />
             <span className={common.slider}></span>
           </label>
-          <span className={common['toggle-text']}>Root domain</span>
+          <span className={common.toggleText}>Root domain</span>
         </div>
-        <p className={styles['config-hint']}>
+        <p className={styles.configHint}>
           Example: blog.example.com → example.com
         </p>
       </div>
 
-      <div className={styles['config-section']}>
-        <h3 className={styles['config-heading']}>Cache Management</h3>
-        <div className={styles['cache-buttons']}>
+      <div className={styles.configSection}>
+        <h3 className={styles.configHeading}>Cache Management</h3>
+        <div className={styles.cacheButtons}>
           <button
             type="button"
             onClick={clearDomainCache}
-            className={`${common.btn} ${common['btn-primary']}`}
+            className={`${common.btn} ${common.btnPrimary}`}
             disabled={!tabInfo.domain || isClearing}
           >
             {isClearing ? 'Clearing...' : 'Clear Current Domain'}
@@ -69,13 +69,13 @@ export function ConfigTab() {
           <button
             type="button"
             onClick={clearCache}
-            className={`${common.btn} ${common['btn-primary']}`}
+            className={`${common.btn} ${common.btnPrimary}`}
             disabled={isClearing}
           >
             {isClearing ? 'Clearing...' : 'Clear All Cache'}
           </button>
         </div>
-        <p className={styles['config-hint']}>Cache expires after 30 minutes.</p>
+        <p className={styles.configHint}>Cache expires after 30 minutes.</p>
       </div>
     </div>
   )
