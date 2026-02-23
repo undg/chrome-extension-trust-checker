@@ -1,21 +1,11 @@
-import type { Config } from '@/shared/config'
+import { useCache, useConfig, useTabInfo } from '../hooks/useStore'
 import styles from '../Popup.module.css'
 
-interface ConfigTabProps {
-  config: Config | null
-  tabInfo: { domain: string | null }
-  onUpdateConfig: (updates: Partial<Config>) => Promise<void>
-  onClearCache: () => Promise<void>
-  onClearDomainCache: () => Promise<void>
-}
+export function ConfigTab() {
+  const { config, updateConfig } = useConfig()
+  const { tabInfo } = useTabInfo()
+  const { clearCache, clearDomainCache } = useCache()
 
-export function ConfigTab({
-  config,
-  tabInfo,
-  onUpdateConfig,
-  onClearCache,
-  onClearDomainCache,
-}: ConfigTabProps) {
   return (
     <div className={styles['tab-panel']}>
       <div className={styles['config-section']}>
@@ -26,7 +16,7 @@ export function ConfigTab({
               type="radio"
               name="autoFetch"
               checked={!config?.autoFetchOnPageLoad}
-              onChange={() => onUpdateConfig({ autoFetchOnPageLoad: false })}
+              onChange={() => updateConfig({ autoFetchOnPageLoad: false })}
             />
             <span>On-demand (manual fetch)</span>
           </label>
@@ -35,7 +25,7 @@ export function ConfigTab({
               type="radio"
               name="autoFetch"
               checked={config?.autoFetchOnPageLoad}
-              onChange={() => onUpdateConfig({ autoFetchOnPageLoad: true })}
+              onChange={() => updateConfig({ autoFetchOnPageLoad: true })}
             />
             <span>Automatic (fetch on page load)</span>
           </label>
@@ -54,7 +44,7 @@ export function ConfigTab({
             type="checkbox"
             checked={config?.useRootDomain ?? true}
             onChange={() =>
-              onUpdateConfig({ useRootDomain: !config?.useRootDomain })
+              updateConfig({ useRootDomain: !config?.useRootDomain })
             }
           />
           <span>Use root domain for lookups</span>
@@ -69,7 +59,7 @@ export function ConfigTab({
         <div className={styles['cache-buttons']}>
           <button
             type="button"
-            onClick={onClearDomainCache}
+            onClick={clearDomainCache}
             className={styles['cache-btn']}
             disabled={!tabInfo.domain}
           >
@@ -77,7 +67,7 @@ export function ConfigTab({
           </button>
           <button
             type="button"
-            onClick={onClearCache}
+            onClick={clearCache}
             className={styles['cache-btn']}
           >
             Clear All Cache

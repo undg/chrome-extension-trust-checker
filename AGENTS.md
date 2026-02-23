@@ -170,10 +170,11 @@ pnpm test:ui       # Run Vitest with UI
 
 ## State Management
 
-- Start with React hooks (useState, useEffect)
-- Be very conservative with usage of useEffect
-- Consider Jotai to reduce prop drilling
-- Service worker for persistent state (chrome.storage)
+- **Jotai** for all React state - atoms in `src/popup/store.ts`
+- **Action atoms** encapsulate async operations (API calls, chrome.runtime messaging)
+- **No prop drilling** - components use `useStore.ts` hooks that wrap `useAtomValue`/`useSetAtom`
+- Keep atoms small and focused; derive computed state with `atom((get) => ...)`
+- Service worker handles persistent state (chrome.storage)
 
 ## Security Considerations
 

@@ -1,18 +1,19 @@
-import { useCallback, useState } from 'react'
+import { atom, useAtom } from 'jotai'
+import { useCallback } from 'react'
 
 type Tab = 'rating' | 'config'
 
-interface UseTabNavigationReturn {
-  activeTab: Tab
-  setActiveTab: (tab: Tab) => void
-}
+const activeTabAtom = atom<Tab>('rating')
 
-export function useTabNavigation(): UseTabNavigationReturn {
-  const [activeTab, setActiveTab] = useState<Tab>('rating')
+export function useTabNavigation() {
+  const [activeTab, setActiveTab] = useAtom(activeTabAtom)
 
-  const handleSetActiveTab = useCallback((tab: Tab) => {
-    setActiveTab(tab)
-  }, [])
+  const handleSetActiveTab = useCallback(
+    (tab: Tab) => {
+      setActiveTab(tab)
+    },
+    [setActiveTab],
+  )
 
   return {
     activeTab,

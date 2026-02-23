@@ -1,23 +1,22 @@
+import { useEffect } from 'react'
 import { ConfigTab } from './components/ConfigTab'
 import { RatingTab } from './components/RatingTab'
 import { TabNavigation } from './components/TabNavigation'
-import { useConfig } from './hooks/useConfig'
-import { useRating } from './hooks/useRating'
+import { useConfig, usePopupInit } from './hooks/useStore'
 import { useTabNavigation } from './hooks/useTabNavigation'
 import styles from './Popup.module.css'
 
 export function Popup() {
   const { activeTab, setActiveTab } = useTabNavigation()
-  const { config, configLoaded, updateConfig } = useConfig()
-  const {
-    tabInfo,
-    rating,
-    loading,
-    error,
-    isCached,
-    handleClearCache,
-    handleClearDomainCache,
-  } = useRating(config, configLoaded)
+  const { configLoaded } = useConfig()
+  const { initialize } = usePopupInit()
+
+  // Initialize popup on mount
+  useEffect(() => {
+    if (configLoaded) {
+      initialize()
+    }
+  }, [configLoaded, initialize])
 
   return (
     <div className={styles.popup}>
@@ -25,26 +24,8 @@ export function Popup() {
 
       <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {activeTab === 'rating' && (
-        <RatingTab
-          tabInfo={tabInfo}
-          rating={rating}
-          loading={loading}
-          error={error}
-          isCached={isCached}
-          config={config}
-          onUpdateConfig={updateConfig}
-        />
-      )}
-      {activeTab === 'config' && (
-        <ConfigTab
-          config={config}
-          tabInfo={tabInfo}
-          onUpdateConfig={updateConfig}
-          onClearCache={handleClearCache}
-          onClearDomainCache={handleClearDomainCache}
-        />
-      )}
+      {activeTab === 'rating' && <RatingTab />}
+      {activeTab === 'config' && <ConfigTab />}
     </div>
   )
 }

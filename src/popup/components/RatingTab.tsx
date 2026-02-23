@@ -1,28 +1,13 @@
-import type { Config } from '@/shared/config'
-import type { TrustpilotRating } from '@/shared/types'
-import { buildTrustpilotUrl, type TabInfo } from '@/shared/utils'
+import { buildTrustpilotUrl } from '@/shared/utils'
+import { useConfig, useRatingState, useTabInfo } from '../hooks/useStore'
 import styles from '../Popup.module.css'
 import { StarRating } from './StarRating'
 
-interface RatingTabProps {
-  tabInfo: TabInfo
-  rating: TrustpilotRating | null
-  loading: boolean
-  error: string | null
-  isCached: boolean
-  config: Config | null
-  onUpdateConfig: (updates: Partial<Config>) => Promise<void>
-}
+export function RatingTab() {
+  const { config, updateConfig } = useConfig()
+  const { tabInfo } = useTabInfo()
+  const { rating, loading, error, isCached } = useRatingState()
 
-export function RatingTab({
-  tabInfo,
-  rating,
-  loading,
-  error,
-  isCached,
-  config,
-  onUpdateConfig,
-}: RatingTabProps) {
   const openTrustpilot = () => {
     if (tabInfo.domain) {
       const trustpilotUrl = rating?.url || buildTrustpilotUrl(tabInfo.domain)
@@ -49,7 +34,7 @@ export function RatingTab({
             type="checkbox"
             checked={config?.useRootDomain ?? true}
             onChange={() =>
-              onUpdateConfig({ useRootDomain: !config?.useRootDomain })
+              updateConfig({ useRootDomain: !config?.useRootDomain })
             }
           />
           <span className={styles.slider}></span>
