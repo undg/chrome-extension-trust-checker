@@ -7,6 +7,7 @@ import {
   extractRootDomain,
   type TabInfo,
 } from '@/shared/utils'
+import styles from './Popup.module.css'
 
 const STORAGE_KEY = 'trustchecker_useRootDomain'
 const ratingClient = new Api({ strategy: 'scraper' })
@@ -97,7 +98,7 @@ export function Popup() {
 
     return (
       <span
-        className="stars"
+        className={styles.stars}
         role="img"
         aria-label={`${ratingValue} out of 5 stars`}
       >
@@ -109,59 +110,61 @@ export function Popup() {
   }
 
   return (
-    <div className="popup">
-      <h1>Trust Checker</h1>
+    <div className={styles.popup}>
+      <h1 className={styles.title}>Trust Checker</h1>
 
       {tabInfo.domain ? (
         <>
-          <p className="domain">{tabInfo.domain}</p>
+          <p className={styles.domain}>{tabInfo.domain}</p>
 
-          <div className="toggle-wrapper">
-            <span className="toggle-text">Full domain</span>
-            <label className="switch">
+          <div className={styles['toggle-wrapper']}>
+            <span className={styles['toggle-text']}>Full domain</span>
+            <label className={styles.switch}>
               <input
                 type="checkbox"
                 checked={useRootDomain}
                 onChange={handleToggleChange}
               />
-              <span className="slider"></span>
+              <span className={styles.slider}></span>
             </label>
-            <span className="toggle-text">Root domain</span>
+            <span className={styles['toggle-text']}>Root domain</span>
           </div>
 
           {loading ? (
-            <div className="rating-container">
-              <p className="loading-text">Loading...</p>
+            <div className={styles['rating-container']}>
+              <p className={styles['loading-text']}>Loading...</p>
             </div>
           ) : rating ? (
-            <div className="rating-container">
-              <div className="rating-stars">
+            <div className={styles['rating-container']}>
+              <div className={styles['rating-stars']}>
                 {renderStars(rating.rating)}
-                <span className="rating-value">{rating.rating.toFixed(1)}</span>
+                <span className={styles['rating-value']}>
+                  {rating.rating.toFixed(1)}
+                </span>
               </div>
-              <p className="review-count">
+              <p className={styles['review-count']}>
                 {rating.reviewCount.toLocaleString()} reviews
               </p>
               {rating.trustScore && (
-                <p className="trust-score">{rating.trustScore}</p>
+                <p className={styles['trust-score']}>{rating.trustScore}</p>
               )}
             </div>
           ) : error ? (
-            <p className="error-message">{error}</p>
+            <p className={styles['error-message']}>{error}</p>
           ) : (
-            <p className="no-rating">No rating found</p>
+            <p className={styles['no-rating']}>No rating found</p>
           )}
 
           <button
             type="button"
             onClick={openTrustpilot}
-            className="trustpilot-btn"
+            className={styles['trustpilot-btn']}
           >
             View on Trustpilot
           </button>
         </>
       ) : (
-        <p className="error">Unable to get domain from current tab</p>
+        <p className={styles.error}>Unable to get domain from current tab</p>
       )}
     </div>
   )
