@@ -79,7 +79,10 @@ async function handleTabChange(url?: string): Promise<void> {
     return
   }
 
-  const domain = extractRootDomain(fullDomain)
+  const config = await configStore.get()
+  const domain = config.useRootDomain
+    ? extractRootDomain(fullDomain)
+    : fullDomain
   await updateBadge(domain)
 }
 

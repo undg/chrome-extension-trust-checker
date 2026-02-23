@@ -42,14 +42,30 @@ export const loadConfigAtom = atom(null, async (_, set) => {
 export const updateConfigAtom = atom(
   null,
   async (get, set, updates: Partial<Config>) => {
+    const current = get(configAtom)
+    const previousUseRootDomain = current?.useRootDomain ?? true
+
     const response = await chrome.runtime.sendMessage({
       type: 'SET_CONFIG',
       updates,
     })
 
     if (response?.success) {
-      const current = get(configAtom)
       set(configAtom, current ? { ...current, ...updates } : null)
+
+      // If useRootDomain setting changed, reinitialize for new domain mode
+      if (
+        updates.useRootDomain !== undefined &&
+        updates.useRootDomain !== previousUseRootDomain
+      ) {
+        // Clear current rating since domain mode changed
+        set(ratingAtom, null)
+        set(isCachedAtom, false)
+        // Update badge to clear it until new rating is fetched
+        chrome.runtime.sendMessage({ type: 'UPDATE_BADGE', rating: 0 })
+        // Reinitialize popup with new domain mode
+        await set(initializePopupAtom)
+      }
     }
   },
 )
@@ -88,10 +104,17 @@ export const loadCachedRatingAtom = atom(null, async (get, set) => {
       set(ratingAtom, response.rating)
       set(isCachedAtom, true)
       set(errorAtom, null)
+      // Update badge with cached rating
+      chrome.runtime.sendMessage({
+        type: 'UPDATE_BADGE',
+        rating: response.rating.rating,
+      })
     } else {
       set(ratingAtom, null)
       set(isCachedAtom, false)
       set(errorAtom, null)
+      // Clear badge when no cached rating
+      chrome.runtime.sendMessage({ type: 'UPDATE_BADGE', rating: 0 })
     }
   } catch {
     set(ratingAtom, null)
@@ -160,6 +183,8 @@ export const clearCacheAtom = atom(null, async (_, set) => {
     await chrome.runtime.sendMessage({ type: 'CLEAR_CACHE' })
     set(ratingAtom, null)
     set(isCachedAtom, false)
+    // Clear badge when cache is cleared
+    chrome.runtime.sendMessage({ type: 'UPDATE_BADGE', rating: 0 })
   } catch {
     set(errorAtom, 'Failed to clear cache')
   }
@@ -177,6 +202,8 @@ export const clearDomainCacheAtom = atom(null, async (get, set) => {
     })
     set(ratingAtom, null)
     set(isCachedAtom, false)
+    // Clear badge when cache is cleared
+    chrome.runtime.sendMessage({ type: 'UPDATE_BADGE', rating: 0 })
   } catch {
     set(errorAtom, 'Failed to clear cache')
   }
