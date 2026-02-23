@@ -57,30 +57,6 @@ export function Popup() {
       .catch(() => setConfigLoaded(true))
   }, [])
 
-  // Load cached rating when popup opens
-  useEffect(() => {
-    if (!configLoaded) return
-
-    chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
-      const currentTab = tabs[0]
-      const fullDomain = extractDomain(currentTab?.url)
-      const domain = fullDomain
-        ? (config?.useRootDomain ?? true)
-          ? extractRootDomain(fullDomain)
-          : fullDomain
-        : null
-
-      setTabInfo({
-        domain,
-        url: currentTab?.url || null,
-      })
-
-      if (domain) {
-        await loadCachedRating(domain)
-      }
-    })
-  }, [configLoaded, config?.useRootDomain, loadCachedRating])
-
   const handleFetchRating = useCallback(async () => {
     if (!tabInfo.domain) return
 
@@ -111,6 +87,49 @@ export function Popup() {
       setLoading(false)
     }
   }, [tabInfo.domain])
+
+  // Load rating when popup opens
+  useEffect(() => {
+    if (!configLoaded) return
+
+    chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+      const currentTab = tabs[0]
+      const fullDomain = extractDomain(currentTab?.url)
+      const domain = fullDomain
+        ? (config?.useRootDomain ?? true)
+          ? extractRootDomain(fullDomain)
+          : fullDomain
+        : null
+
+      setTabInfo({
+        domain,
+        url: currentTab?.url || null,
+      })
+
+      if (!domain) return
+
+      // Try to load cached rating first
+      await loadCachedRating(domain)
+
+      // For on-demand mode: fetch fresh rating when popup opens if no cached data
+      if (!config?.autoFetchOnPageLoad) {
+        const response = await chrome.runtime.sendMessage({
+          type: 'GET_CACHED_RATING',
+          domain,
+        })
+        if (!response?.rating) {
+          // No cached rating, fetch it now
+          handleFetchRating()
+        }
+      }
+    })
+  }, [
+    configLoaded,
+    config?.useRootDomain,
+    config?.autoFetchOnPageLoad,
+    loadCachedRating,
+    handleFetchRating,
+  ])
 
   const handleClearCache = useCallback(async () => {
     try {
@@ -223,19 +242,6 @@ export function Popup() {
 
           <button
             type="button"
-            onClick={handleFetchRating}
-            className={styles['fetch-btn']}
-            disabled={loading}
-          >
-            {loading
-              ? 'Loading...'
-              : rating
-                ? 'Refresh Rating'
-                : 'Fetch Rating'}
-          </button>
-
-          <button
-            type="button"
             onClick={openTrustpilot}
             className={styles['trustpilot-btn']}
           >
@@ -275,7 +281,7 @@ export function Popup() {
         <p className={styles['config-hint']}>
           {config?.autoFetchOnPageLoad
             ? 'Ratings are automatically fetched when you visit a website.'
-            : 'Click "Fetch Rating" to load ratings manually.'}
+            : 'Rating is fetched when you open the popup.'}
         </p>
       </div>
 
