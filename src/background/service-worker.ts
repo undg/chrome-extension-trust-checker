@@ -163,6 +163,21 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     return true
   }
 
+  if (message.type === 'GET_CACHE_STATS') {
+    const domain = message.domain as string | undefined
+    Promise.all([
+      ratingCache.getCacheSize(),
+      domain ? ratingCache.getCacheInfo(domain) : Promise.resolve(null),
+    ])
+      .then(([size, info]) => {
+        sendResponse({ size, info })
+      })
+      .catch(() => {
+        sendResponse({ size: 0, info: null })
+      })
+    return true
+  }
+
   return true
 })
 

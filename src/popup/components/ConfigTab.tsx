@@ -1,11 +1,32 @@
+import { useEffect } from 'react'
 import common from '../common.module.css'
-import { useCache, useConfig, useTabInfo } from '../hooks/useStore'
+import {
+  useCache,
+  useCacheStats,
+  useConfig,
+  useTabInfo,
+} from '../hooks/useStore'
 import styles from '../Popup.module.css'
+
+function formatDuration(ms: number): string {
+  if (ms <= 0) return 'expired'
+  const minutes = Math.ceil(ms / 60000)
+  if (minutes < 60) return `${minutes} min`
+  const hours = Math.floor(minutes / 60)
+  const remainingMinutes = minutes % 60
+  if (remainingMinutes === 0) return `${hours} hr`
+  return `${hours} hr ${remainingMinutes} min`
+}
 
 export function ConfigTab() {
   const { config, updateConfig } = useConfig()
   const { tabInfo } = useTabInfo()
   const { clearCache, clearDomainCache, isClearing } = useCache()
+  const { cacheSize, cacheInfo, loadCacheStats } = useCacheStats()
+
+  useEffect(() => {
+    loadCacheStats()
+  }, [loadCacheStats, tabInfo.domain])
 
   return (
     <div className={styles.tabPanel}>
@@ -74,9 +95,13 @@ export function ConfigTab() {
           >
             {isClearing ? 'Clearing...' : 'Clear All Domains'}
           </button>
-          <span>number or websites: 19</span>
+          <span>Cached websites: {cacheSize}</span>
         </div>
-        <p className={styles.configHint}>Cache expires after 30 minutes.</p>
+        <p className={styles.configHint}>
+          {cacheInfo && cacheInfo.cached
+            ? `Current domain expires in: ${formatDuration(cacheInfo.expiresIn)}`
+            : 'Cache expires after 30 minutes.'}
+        </p>
       </div>
     </div>
   )

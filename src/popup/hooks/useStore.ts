@@ -1,6 +1,8 @@
 import { useAtomValue, useSetAtom } from 'jotai'
 import { useEffect } from 'react'
 import {
+  cacheInfoAtom,
+  cacheSizeAtom,
   clearCacheAtom,
   clearCacheLoadingAtom,
   clearDomainCacheAtom,
@@ -9,6 +11,7 @@ import {
   errorAtom,
   initializePopupAtom,
   isCachedAtom,
+  loadCacheStatsAtom,
   loadConfigAtom,
   loadingAtom,
   ratingAtom,
@@ -77,5 +80,18 @@ export function useCache() {
     clearCache,
     clearDomainCache,
     isClearing,
+  }
+}
+
+// Hook for cache stats
+export function useCacheStats() {
+  const cacheSize = useAtomValue(cacheSizeAtom)
+  const cacheInfo = useAtomValue(cacheInfoAtom)
+  const loadCacheStats = useSetAtom(loadCacheStatsAtom)
+
+  return {
+    cacheSize,
+    cacheInfo,
+    loadCacheStats,
   }
 }

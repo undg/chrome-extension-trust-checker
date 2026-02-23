@@ -123,6 +123,11 @@ class RatingCache {
 
     await chrome.storage.local.set({ [CACHE_KEY]: storage })
   }
+
+  async getCacheSize(): Promise<number> {
+    await this.init()
+    return this.memoryCache.size
+  }
 }
 
 export const ratingCache = new RatingCache()

@@ -12,6 +12,13 @@ export const loadingAtom = atom<boolean>(false)
 export const errorAtom = atom<string | null>(null)
 export const isCachedAtom = atom<boolean>(false)
 export const clearCacheLoadingAtom = atom<boolean>(false)
+export const cacheSizeAtom = atom<number>(0)
+export const cacheInfoAtom = atom<{
+  cached: boolean
+  age: number
+  ttl: number
+  expiresIn: number
+} | null>(null)
 
 // Derived atom for effective domain based on config
 export const effectiveDomainAtom = atom((get) => {
@@ -213,5 +220,25 @@ export const clearDomainCacheAtom = atom(null, async (get, set) => {
     set(errorAtom, 'Failed to clear cache')
   } finally {
     set(clearCacheLoadingAtom, false)
+  }
+})
+
+// Action atom to load cache stats
+export const loadCacheStatsAtom = atom(null, async (get, set) => {
+  const domain = get(tabInfoAtom).domain
+
+  try {
+    const response = await chrome.runtime.sendMessage({
+      type: 'GET_CACHE_STATS',
+      domain,
+    })
+
+    if (response) {
+      set(cacheSizeAtom, response.size || 0)
+      set(cacheInfoAtom, response.info)
+    }
+  } catch {
+    set(cacheSizeAtom, 0)
+    set(cacheInfoAtom, null)
   }
 })
