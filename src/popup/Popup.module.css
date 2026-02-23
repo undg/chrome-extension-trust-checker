@@ -17,7 +17,7 @@ body {
 }
 
 .popup {
-  padding: 24px;
+  padding: 20px;
   background: white;
   border-radius: 8px;
 }
@@ -27,17 +27,55 @@ body {
   font-weight: 600;
   color: #333;
   margin-bottom: 16px;
+  text-align: center;
+}
+
+/* Tab Navigation */
+.tab-nav {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: -2px;
+}
+
+.tab-btn:hover {
+  color: #333;
+}
+
+.tab-btn-active {
+  color: #00b67a;
+  border-bottom-color: #00b67a;
+}
+
+/* Tab Panel */
+.tab-panel {
+  min-height: 180px;
 }
 
 .domain {
   font-size: 15px;
   color: #666;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   word-break: break-all;
+  text-align: center;
 }
 
 .rating-container {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   padding: 16px;
   background: #f9f9f9;
   border-radius: 8px;
@@ -73,6 +111,12 @@ body {
   margin-bottom: 4px;
 }
 
+.cache-indicator {
+  font-size: 12px;
+  color: #999;
+  font-style: italic;
+}
+
 .trust-score {
   font-size: 14px;
   color: #00b67a;
@@ -82,7 +126,7 @@ body {
 }
 
 .no-rating {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   padding: 16px;
   min-height: var(--rating-height);
   font-size: 15px;
@@ -98,39 +142,20 @@ body {
 .error-message {
   font-size: 15px;
   color: #e74c3c;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   padding: 16px;
   background: #fdf2f2;
   border-radius: 8px;
-}
-
-.trustpilot-btn {
-  width: 100%;
-  padding: 14px 18px;
-  background: #00b67a;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.trustpilot-btn:hover {
-  background: #009f6b;
-}
-
-.trustpilot-btn:disabled {
-  background: #ccc;
-  cursor: not-allowed;
+  text-align: center;
 }
 
 .error {
   color: #e74c3c;
   font-size: 14px;
+  text-align: center;
 }
 
+/* Toggle Switch */
 .toggle-wrapper {
   display: flex;
   align-items: center;
@@ -192,8 +217,150 @@ body {
   transform: translateX(20px);
 }
 
+/* Buttons */
+.fetch-btn {
+  width: 100%;
+  padding: 12px 18px;
+  margin-bottom: 10px;
+  background: #00b67a;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.fetch-btn:hover {
+  background: #009f6b;
+}
+
+.fetch-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.trustpilot-btn {
+  width: 100%;
+  padding: 12px 18px;
+  background: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.trustpilot-btn:hover {
+  background: #e8e8e8;
+}
+
 .loading-text {
   font-size: 15px;
   color: #999;
   text-align: center;
+}
+
+/* Config Panel */
+.config-section {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.config-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.config-heading {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.config-option {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.config-radio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.config-radio:hover {
+  background: #f5f5f5;
+}
+
+.config-radio input {
+  margin: 0;
+}
+
+.config-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.config-checkbox:hover {
+  background: #f5f5f5;
+}
+
+.config-checkbox input {
+  margin: 0;
+}
+
+.config-hint {
+  font-size: 13px;
+  color: #888;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+/* Cache Buttons */
+.cache-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cache-btn {
+  padding: 10px 16px;
+  background: #f5f5f5;
+  color: #333;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cache-btn:hover {
+  background: #e8e8e8;
+}
+
+.cache-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

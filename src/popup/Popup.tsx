@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import type { Config } from '@/shared/config'
 import type { TrustpilotRating } from '@/shared/types'
 import {
   buildTrustpilotUrl,
@@ -8,44 +9,63 @@ import {
 } from '@/shared/utils'
 import styles from './Popup.module.css'
 
-const STORAGE_KEY = 'trustchecker_useRootDomain'
+type Tab = 'rating' | 'config'
 
 export function Popup() {
+  const [activeTab, setActiveTab] = useState<Tab>('rating')
   const [tabInfo, setTabInfo] = useState<TabInfo>({ domain: null, url: null })
   const [rating, setRating] = useState<TrustpilotRating | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [useRootDomain, setUseRootDomain] = useState(true)
-  const [storageLoaded, setStorageLoaded] = useState(false)
+  const [config, setConfig] = useState<Config | null>(null)
+  const [configLoaded, setConfigLoaded] = useState(false)
   const [isCached, setIsCached] = useState(false)
-  const isFirstLoad = useRef(true)
 
-  // Load saved preference on mount
-  useEffect(() => {
-    chrome.storage.local.get([STORAGE_KEY], (result) => {
-      if (result[STORAGE_KEY] !== undefined) {
-        setUseRootDomain(result[STORAGE_KEY])
+  const loadCachedRating = useCallback(async (domain: string) => {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: 'GET_CACHED_RATING',
+        domain,
+      })
+
+      if (response?.rating) {
+        setRating(response.rating)
+        setIsCached(true)
+        setError(null)
+      } else {
+        setRating(null)
+        setIsCached(false)
+        setError(null)
       }
-      setStorageLoaded(true)
-    })
+    } catch {
+      setRating(null)
+      setIsCached(false)
+      setError(null)
+    }
   }, [])
 
-  // Save preference when changed
+  // Load config on mount
   useEffect(() => {
-    if (storageLoaded) {
-      chrome.storage.local.set({ [STORAGE_KEY]: useRootDomain })
-    }
-  }, [useRootDomain, storageLoaded])
+    chrome.runtime
+      .sendMessage({ type: 'GET_CONFIG' })
+      .then((response) => {
+        if (response?.config) {
+          setConfig(response.config)
+        }
+        setConfigLoaded(true)
+      })
+      .catch(() => setConfigLoaded(true))
+  }, [])
 
-  // Fetch rating when tab or preference changes
+  // Load cached rating when popup opens
   useEffect(() => {
-    if (!storageLoaded) return
+    if (!configLoaded) return
 
     chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
       const currentTab = tabs[0]
       const fullDomain = extractDomain(currentTab?.url)
       const domain = fullDomain
-        ? useRootDomain
+        ? (config?.useRootDomain ?? true)
           ? extractRootDomain(fullDomain)
           : fullDomain
         : null
@@ -56,45 +76,12 @@ export function Popup() {
       })
 
       if (domain) {
-        try {
-          const response = await chrome.runtime.sendMessage({
-            type: 'GET_CACHED_RATING',
-            domain,
-          })
-
-          if (response?.rating) {
-            setRating(response.rating)
-            setIsCached(true)
-          } else {
-            setRating(null)
-            setIsCached(false)
-          }
-        } catch {
-          setError('Failed to load rating')
-          setIsCached(false)
-        }
-      }
-
-      if (isFirstLoad.current) {
-        setLoading(false)
-        isFirstLoad.current = false
+        await loadCachedRating(domain)
       }
     })
-  }, [useRootDomain, storageLoaded])
+  }, [configLoaded, config?.useRootDomain, loadCachedRating])
 
-  const openTrustpilot = () => {
-    if (tabInfo.domain) {
-      const trustpilotUrl = rating?.url || buildTrustpilotUrl(tabInfo.domain)
-      chrome.tabs.create({ url: trustpilotUrl })
-    }
-  }
-
-  const handleToggleChange = () => {
-    setUseRootDomain(!useRootDomain)
-    setError(null)
-  }
-
-  const handleRefresh = async () => {
+  const handleFetchRating = useCallback(async () => {
     if (!tabInfo.domain) return
 
     setLoading(true)
@@ -109,6 +96,7 @@ export function Popup() {
       if (response?.success && response.rating) {
         setRating(response.rating)
         setIsCached(false)
+        setError(null)
         chrome.runtime.sendMessage({
           type: 'UPDATE_BADGE',
           rating: response.rating.rating,
@@ -118,9 +106,51 @@ export function Popup() {
         setError('No rating found')
       }
     } catch {
-      setError('Failed to refresh rating')
+      setError('Failed to fetch rating')
     } finally {
       setLoading(false)
+    }
+  }, [tabInfo.domain])
+
+  const handleClearCache = useCallback(async () => {
+    try {
+      await chrome.runtime.sendMessage({ type: 'CLEAR_CACHE' })
+      setRating(null)
+      setIsCached(false)
+    } catch {
+      setError('Failed to clear cache')
+    }
+  }, [])
+
+  const handleClearDomainCache = useCallback(async () => {
+    if (!tabInfo.domain) return
+    try {
+      await chrome.runtime.sendMessage({
+        type: 'CLEAR_CACHE',
+        domain: tabInfo.domain,
+      })
+      setRating(null)
+      setIsCached(false)
+    } catch {
+      setError('Failed to clear cache')
+    }
+  }, [tabInfo.domain])
+
+  const updateConfig = useCallback(async (updates: Partial<Config>) => {
+    const response = await chrome.runtime.sendMessage({
+      type: 'SET_CONFIG',
+      updates,
+    })
+
+    if (response?.success) {
+      setConfig((prev) => (prev ? { ...prev, ...updates } : null))
+    }
+  }, [])
+
+  const openTrustpilot = () => {
+    if (tabInfo.domain) {
+      const trustpilotUrl = rating?.url || buildTrustpilotUrl(tabInfo.domain)
+      chrome.tabs.create({ url: trustpilotUrl })
     }
   }
 
@@ -142,10 +172,8 @@ export function Popup() {
     )
   }
 
-  return (
-    <div className={styles.popup}>
-      <h1 className={styles.title}>Trust Checker</h1>
-
+  const renderRatingTab = () => (
+    <div className={styles['tab-panel']}>
       {tabInfo.domain ? (
         <>
           <p className={styles.domain}>{tabInfo.domain}</p>
@@ -155,8 +183,10 @@ export function Popup() {
             <label className={styles.switch}>
               <input
                 type="checkbox"
-                checked={useRootDomain}
-                onChange={handleToggleChange}
+                checked={config?.useRootDomain ?? true}
+                onChange={() =>
+                  updateConfig({ useRootDomain: !config?.useRootDomain })
+                }
               />
               <span className={styles.slider}></span>
             </label>
@@ -191,28 +221,127 @@ export function Popup() {
             <p className={styles['no-rating']}>No rating found</p>
           )}
 
-          <div className={styles['button-group']}>
-            <button
-              type="button"
-              onClick={openTrustpilot}
-              className={styles['trustpilot-btn']}
-            >
-              View on Trustpilot
-            </button>
-            <button
-              type="button"
-              onClick={handleRefresh}
-              className={styles['refresh-btn']}
-              disabled={loading}
-              title="Force refresh from Trustpilot"
-            >
-              ↻
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={handleFetchRating}
+            className={styles['fetch-btn']}
+            disabled={loading}
+          >
+            {loading
+              ? 'Loading...'
+              : rating
+                ? 'Refresh Rating'
+                : 'Fetch Rating'}
+          </button>
+
+          <button
+            type="button"
+            onClick={openTrustpilot}
+            className={styles['trustpilot-btn']}
+          >
+            View on Trustpilot
+          </button>
         </>
       ) : (
         <p className={styles.error}>Unable to get domain from current tab</p>
       )}
+    </div>
+  )
+
+  const renderConfigTab = () => (
+    <div className={styles['tab-panel']}>
+      <div className={styles['config-section']}>
+        <h3 className={styles['config-heading']}>Loading Mode</h3>
+        <div className={styles['config-option']}>
+          <label className={styles['config-radio']}>
+            <input
+              type="radio"
+              name="autoFetch"
+              checked={!config?.autoFetchOnPageLoad}
+              onChange={() => updateConfig({ autoFetchOnPageLoad: false })}
+            />
+            <span>On-demand (manual fetch)</span>
+          </label>
+          <label className={styles['config-radio']}>
+            <input
+              type="radio"
+              name="autoFetch"
+              checked={config?.autoFetchOnPageLoad}
+              onChange={() => updateConfig({ autoFetchOnPageLoad: true })}
+            />
+            <span>Automatic (fetch on page load)</span>
+          </label>
+        </div>
+        <p className={styles['config-hint']}>
+          {config?.autoFetchOnPageLoad
+            ? 'Ratings are automatically fetched when you visit a website.'
+            : 'Click "Fetch Rating" to load ratings manually.'}
+        </p>
+      </div>
+
+      <div className={styles['config-section']}>
+        <h3 className={styles['config-heading']}>Domain Settings</h3>
+        <label className={styles['config-checkbox']}>
+          <input
+            type="checkbox"
+            checked={config?.useRootDomain ?? true}
+            onChange={() =>
+              updateConfig({ useRootDomain: !config?.useRootDomain })
+            }
+          />
+          <span>Use root domain for lookups</span>
+        </label>
+        <p className={styles['config-hint']}>
+          Example: blog.example.com → example.com
+        </p>
+      </div>
+
+      <div className={styles['config-section']}>
+        <h3 className={styles['config-heading']}>Cache Management</h3>
+        <div className={styles['cache-buttons']}>
+          <button
+            type="button"
+            onClick={handleClearDomainCache}
+            className={styles['cache-btn']}
+            disabled={!tabInfo.domain}
+          >
+            Clear Current Domain
+          </button>
+          <button
+            type="button"
+            onClick={handleClearCache}
+            className={styles['cache-btn']}
+          >
+            Clear All Cache
+          </button>
+        </div>
+        <p className={styles['config-hint']}>Cache expires after 30 minutes.</p>
+      </div>
+    </div>
+  )
+
+  return (
+    <div className={styles.popup}>
+      <h1 className={styles.title}>Trust Checker</h1>
+
+      <div className={styles['tab-nav']}>
+        <button
+          type="button"
+          className={`${styles['tab-btn']} ${activeTab === 'rating' ? styles['tab-btn-active'] : ''}`}
+          onClick={() => setActiveTab('rating')}
+        >
+          Rating
+        </button>
+        <button
+          type="button"
+          className={`${styles['tab-btn']} ${activeTab === 'config' ? styles['tab-btn-active'] : ''}`}
+          onClick={() => setActiveTab('config')}
+        >
+          Config
+        </button>
+      </div>
+
+      {activeTab === 'rating' ? renderRatingTab() : renderConfigTab()}
     </div>
   )
 }

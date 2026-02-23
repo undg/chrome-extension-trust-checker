@@ -1,19 +1,13 @@
 import { scrapeRating } from '@/api/scrapeRating'
 import { ratingCache } from '@/shared/cache'
+import { configStore } from '@/shared/config'
 import { extractDomain, extractRootDomain } from '@/shared/utils'
 
 console.log('Trust Checker service worker started')
 
 const pendingFetches = new Set<string>()
 
-async function updateBadge(domain: string): Promise<void> {
-  const cached = await ratingCache.get(domain)
-
-  if (cached) {
-    setBadge(cached.rating)
-    return
-  }
-
+async function fetchAndCacheRating(domain: string): Promise<void> {
   if (pendingFetches.has(domain)) {
     return
   }
@@ -31,6 +25,22 @@ async function updateBadge(domain: string): Promise<void> {
     }
   } finally {
     pendingFetches.delete(domain)
+  }
+}
+
+async function updateBadge(domain: string): Promise<void> {
+  const cached = await ratingCache.get(domain)
+
+  if (cached) {
+    setBadge(cached.rating)
+    return
+  }
+
+  const config = await configStore.get()
+  if (config.autoFetchOnPageLoad) {
+    await fetchAndCacheRating(domain)
+  } else {
+    chrome.action.setBadgeText({ text: '' })
   }
 }
 
@@ -115,9 +125,34 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     ratingCache
       .clear(domain)
       .then(async () => {
-        await updateBadge(domain)
+        await fetchAndCacheRating(domain)
         const cached = await ratingCache.get(domain)
         sendResponse({ success: true, rating: cached })
+      })
+      .catch(() => {
+        sendResponse({ success: false })
+      })
+    return true
+  }
+
+  if (message.type === 'GET_CONFIG') {
+    configStore
+      .get()
+      .then((config) => {
+        sendResponse({ config })
+      })
+      .catch(() => {
+        sendResponse({ config: null })
+      })
+    return true
+  }
+
+  if (message.type === 'SET_CONFIG') {
+    const updates = message.updates as Partial<import('@/shared/config').Config>
+    configStore
+      .set(updates)
+      .then(() => {
+        sendResponse({ success: true })
       })
       .catch(() => {
         sendResponse({ success: false })
